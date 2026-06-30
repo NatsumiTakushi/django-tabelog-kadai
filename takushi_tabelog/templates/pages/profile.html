@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+ 
+{% block main %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      
+      {% if is_authenticated %}
+        <h1 class="fw-bold text-dark mb-4"><i class="bi bi-person-circle text-primary me-2"></i>Profile</h1>
+      {% else %}
+        <h1 class="fw-bold text-dark mb-4"><i class="bi bi-person-plus-fill text-success me-2"></i>新規会員登録</h1>
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold text-secondary">Username</label>
+          <input class="form-control form-control-lg" type="text" name="username" placeholder="username" value="{{ request.user.username|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-secondary">Email</label>
+          <input class="form-control form-control-lg" type="email" name="email" placeholder="email" value="{{ request.user.email|default:'' }}" required>
+        </div>
+
+        {% if not is_authenticated %}
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary">Password</label>
+            <input class="form-control form-control-lg" type="password" name="password" placeholder="パスワードを入力してください" required>
+          </div>
+        {% endif %}
+
+        <hr class="my-4">
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-secondary">Zip Code</label>
+            <input class="form-control form-control-lg" type="text" name="zip_code" placeholder="123-4567" value="{{ form.zip_code.value|default:'' }}">
+          </div>
+          
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-secondary">Tel</label>
+            <input class="form-control form-control-lg" type="tel" name="phone_number" placeholder="090-1234-5678" value="{{ form.phone_number.value|default:'' }}">
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold text-secondary">Address</label>
+          <input class="form-control form-control-lg" type="text" name="address" placeholder="都道府県・市区町村・番地" value="{{ form.address.value|default:'' }}">
+        </div>
+
+        <div class="d-grid gap-2">
+          {% if is_authenticated %}
+            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">変更を保存する</button>
+          {% else %}
+            <button type="submit" class="btn btn-success btn-lg fw-bold shadow-sm">アカウントを作成する</button>
+          {% endif %}
+        </div>
+
+        {% if is_authenticated %}
+          {% if not request.user.member.premium_member %}
+            <div class="mt-5 pt-4 border-top">
+              <h5 class="text-danger fw-bold">プレミアムプラン</h5>
+              <p class="text-muted small">有料会員に登録すると、すべてのお店で限定クーポンや特別な予約機能が利用できるようになります。</p>
+              <a href="/premium/" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">✨ 有料会員に登録する</a>
+            </div>
+          {% else %}
+            <div class="mt-5 pt-4 border-top">
+              <h5 class="text-warning fw-bold">🌟 プレミアム会員限定メニュー</h5>
+              <p class="text-muted small">プレミアム会員専用の機能をご利用いただけます。</p>
+              
+              <div class="d-flex gap-3 mt-3">
+                <a href="/favorites/" class="btn btn-outline-primary shadow-sm">
+                  <i class="bi bi-heart-fill me-1"></i> お気に入り一覧を表示
+                </a>
+                <a href="/my-reviews/" class="btn btn-outline-secondary shadow-sm">
+                  <i class="bi bi-chat-right-text-fill me-1"></i> レビュー一覧を表示
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

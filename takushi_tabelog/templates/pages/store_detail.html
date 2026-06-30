@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+ 
+{% block main %}
+<div class="container my-5">
+  
+  <div class="border-bottom pb-3 mb-4">
+    <h1 class="fw-bold text-dark mb-2">{{ object.name }}</h1>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-warning text-dark fs-6 px-3 py-2 shadow-sm">
+        予算: ¥{{ object.lower_price }} 〜 ¥{{ object.upper_price }}
+      </span>
+      {% if object.category %}
+        <span class="badge bg-secondary fs-6 px-3 py-2 shadow-sm">{{ object.category.name }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-5">
+      <div class="card shadow-sm border-0 mb-4">
+        {% if object.image %}
+          <img src="{{ object.image.url }}" class="img-fluid rounded-top w-100" style="max-height: 400px; object-fit: cover;" alt="{{ object.name }}">
+        {% else %}
+          <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded-top" style="height: 300px;">
+            <i class="bi bi-image fs-1 me-2"></i> No Image
+          </div>
+        {% endif %}
+        <div class="card-body p-4">
+          <h5 class="fw-bold border-bottom pb-2 mb-3 text-dark">
+            <i class="bi bi-chat-left-quote-fill text-primary me-2"></i>お店からの紹介
+          </h5>
+          <p class="card-text text-muted lh-lg" style="white-space: pre-wrap;">{{ object.description|default:"紹介文はまだありません。" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-7">
+      <div class="bg-white p-4 rounded border shadow-sm mb-4">
+        <h4 class="fw-bold mb-4 text-primary border-bottom pb-2">
+          <i class="bi bi-info-circle-fill me-2"></i>店舗基本情報
+        </h4>
+        
+        <table class="table table-hover align-middle mb-0">
+          <tbody>
+            <tr>
+              <th class="table-light text-secondary" style="width: 30%;">店名</th>
+              <td><strong>{{ object.name }}</strong></td>
+            </tr>
+            <tr>
+              <th class="table-light text-secondary">電話番号</th>
+              <td>
+                {% if object.phone_number %}
+                  <a href="tel:{{ object.phone_number }}" class="text-decoration-none fw-bold"><i class="bi bi-telephone-fill me-1"></i>{{ object.phone_number }}</a>
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th class="table-light text-secondary">住所</th>
+              <td>
+                {% if object.zip_code %}
+                  <span class="text-muted small">〒{{ object.zip_code }}</span><br>
+                {% endif %}
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ object.address|default:"-" }}
+              </td>
+            </tr>
+            <tr>
+              <th class="table-light text-secondary">営業時間</th>
+              <td><i class="bi bi-clock-fill text-muted me-1"></i>{{ object.open_hours|default:"-" }}</td>
+            </tr>
+            <tr>
+              <th class="table-light text-secondary">定休日</th>
+              <td>
+                {% if object.holiday %}
+                  <span class="text-danger fw-bold"><i class="bi bi-calendar-x-fill me-1"></i>{{ object.holiday }}</span>
+                {% else %}
+                  <span class="text-success fw-bold"><i class="bi bi-calendar-check-fill me-1"></i>年中無休</span>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bg-white p-4 rounded border shadow-sm">
+        <h4 class="fw-bold mb-4 text-dark border-bottom pb-2">
+          <i class="bi bi-calendar-plus-fill text-warning me-2"></i>このお店を予約する
+        </h4>
+        
+        <form action="{% url 'reservation_form' object.pk %}" method="GET">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="reservation_date" class="form-label fw-bold small text-muted">ご来店日</label>
+              <input type="date" name="date" id="reservation_date" class="form-control form-control-lg" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="reservation_time" class="form-label fw-bold small text-muted">ご来店時間</label>
+              <select name="time" id="reservation_time" class="form-select form-control-lg" required>
+                <option value="" selected disabled>時間を選択してください</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="18:00">18:00</option>
+                <option value="19:00">19:00</option>
+                <option value="20:00">20:00</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="num_people" class="form-label fw-bold small text-muted">ご来店人数</label>
+              <div class="input-group input-group-lg">
+                <input type="number" name="people" id="num_people" class="form-control" value="2" min="1" max="20" required>
+                <span class="input-group-text bg-light text-muted">名様</span>
+              </div>
+            </div>
+
+            <div class="col-12 mt-4">
+              <button type="submit" class="btn btn-warning w-100 fw-bold text-dark btn-lg shadow-sm py-3 fs-5">
+                <i class="bi bi-check-circle-fill me-2"></i>予約内容の確認へ進む
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
