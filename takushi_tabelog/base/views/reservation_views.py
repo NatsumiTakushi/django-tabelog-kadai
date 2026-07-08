@@ -1,7 +1,8 @@
-# base/views/reservation_views.py
+from django.views import View
 from django.views.generic import CreateView
-from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect,get_object_or_404
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.dateparse import parse_date, parse_time
 from base.models import Reservation, Store 
 
@@ -9,7 +10,7 @@ class ReservationCreateView(CreateView):
     model = Reservation
     fields = []
     success_url = reverse_lazy('home')
-    template_name = 'base/reservation_form.html'
+    template_name = 'pages/reservation_form.html'
     
     # 💡 役割1：店舗詳細画面から遷移してきた時（GET）に画面に表示する処理
     def get_context_data(self, **kwargs):
@@ -56,3 +57,18 @@ class ReservationCreateView(CreateView):
             form.instance.member = reservation.member
 
         return super().form_valid(form)
+
+class ReservationCancelView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        # 1. 対象の予約データを取得
+        reservation = get_object_or_404(Reservation, pk=self.kwargs['pk'])
+        
+        # 2. セキュリティ対策：他のユーザーが勝手にキャンセルできないようにチェック
+        if reservation.member != request.user.member:
+            raise PermissionDenied("他人の予約をキャンセルすることはできません。")
+            
+        # 3. 予約データをデータベースから削除
+        reservation.delete()
+        
+        # 4. 処理が終わったら、プロフィール画面（マイページ）にリダイレクト
+        return redirect('account') # urls.pyでのプロフィール画面の名前（profileやaccountなど）に合わせてください

@@ -2,7 +2,7 @@ from django.views.generic import UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from base.models import Member
+from base.models import Member, Reservation
 
 class ProfileUpdateView(UpdateView):
     model = Member
@@ -22,6 +22,10 @@ class ProfileUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         # テンプレート側で「ログイン中かどうか」を正確に判定してデザインを切り替えるために渡す
         context['is_authenticated'] = self.request.user.is_authenticated
+        if self.request.user.is_authenticated:
+            context['reservations'] = Reservation.objects.filter(
+                member=self.request.user.member
+            ).order_by('-reservation_date', '-reservation_time')
         return context
 
     def form_valid(self, form):

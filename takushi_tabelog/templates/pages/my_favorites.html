@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h2 class="mb-4 fw-bold"><i class="bi bi-heart-fill text-danger me-2"></i>お気に入り店舗一覧</h2>
+
+      {% if favorites %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+          {% for favorite in favorites %}
+            <div class="col">
+              <div class="card h-100 shadow-sm">
+                {% if favorite.store.image %}
+                  <img src="{{ favorite.store.image.url }}" class="card-img-top" alt="{{ favorite.store.name }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title fw-bold">{{ favorite.store.name }}</h5>
+                  <p class="card-text text-muted small flex-grow-1">
+                    {{ favorite.store.description|truncatechars:50 }}
+                  </p>
+                  <p class="card-text text-muted small mb-3">
+                    <i class="bi bi-geo-alt-fill me-1"></i>{{ favorite.store.address }}
+                  </p>
+                  
+                  <div class="d-flex gap-2 mt-auto">
+                    <a href="{% url 'store_detail' favorite.store.pk %}" class="btn btn-primary btn-sm w-100">
+                      詳細を見る
+                    </a>
+                    
+                    <form method="POST" action="{% url 'favorite_toggle' favorite.store.pk %}" class="w-100">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                        解除
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <div class="card-footer text-muted small text-end">
+                  追加日: {{ favorite.created_at|date:"Y/m/d" }}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-5 border rounded bg-light">
+          <p class="text-muted mb-3">お気に入り登録された店舗はまだありません。</p>
+          <a href="{% url 'home' %}" class="btn btn-primary">お店を探しに行く</a>
+        </div>
+      {% endif %}
+      
+      <div class="mt-4">
+        <a href="{% url 'account' %}" class="btn btn-outline-secondary">マイページへ戻る</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

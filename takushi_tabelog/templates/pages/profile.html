@@ -63,18 +63,19 @@
             <div class="mt-5 pt-4 border-top">
               <h5 class="text-danger fw-bold">プレミアムプラン</h5>
               <p class="text-muted small">有料会員に登録すると、すべてのお店で限定クーポンや特別な予約機能が利用できるようになります。</p>
-              <a href="/premium/" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">✨ 有料会員に登録する</a>
             </div>
           {% else %}
             <div class="mt-5 pt-4 border-top">
               <h5 class="text-warning fw-bold">🌟 プレミアム会員限定メニュー</h5>
-              <p class="text-muted small">プレミアム会員専用の機能をご利用いただけます。</p>
+              <p class="text-muted small">
+                有効期限: {{ request.user.member.premium_member.premium_expiration_date|date:"Y年m月d日" }} まで
+              </p>
               
               <div class="d-flex gap-3 mt-3">
-                <a href="/favorites/" class="btn btn-outline-primary shadow-sm">
+                <a href="{% url 'my_favorites' %}" class="btn btn-outline-primary shadow-sm">
                   <i class="bi bi-heart-fill me-1"></i> お気に入り一覧を表示
                 </a>
-                <a href="/my-reviews/" class="btn btn-outline-secondary shadow-sm">
+                <a href="{% url 'my_reviews' %}" class="btn btn-outline-secondary shadow-sm">
                   <i class="bi bi-chat-right-text-fill me-1"></i> レビュー一覧を表示
                 </a>
               </div>
@@ -82,6 +83,67 @@
           {% endif %}
         {% endif %}
       </form>
+
+      {% if is_authenticated and not request.user.member.premium_member %}
+        <form method="POST" action="{% url 'premium_checkout' %}" class="mt-3">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">
+            ✨ 有料会員に登録する
+          </button>
+        </form>
+      {% endif %}
+
+      {% if is_authenticated %}
+        <div class="mt-5 pt-4 border-top">
+          <h3 class="fw-bold text-dark mb-4">
+            <i class="bi bi-calendar-check text-success me-2"></i>ご予約中の店舗一覧
+          </h3>
+
+          {% if reservations %}
+            <div class="row row-cols-1 g-3">
+              {% for reservation in reservations %}
+                <div class="col">
+                  <div class="card shadow-sm border-light">
+                    <div class="card-body d-flex align-items-center gap-3">
+                      
+                      {% if reservation.store.image %}
+                        <img src="{{ reservation.store.image.url }}" alt="{{ reservation.store.name }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                      {% endif %}
+                      
+                      <div class="flex-grow-1">
+                        <h5 class="card-title fw-bold mb-1">{{ reservation.store.name }}</h5>
+                        <p class="card-text text-muted small mb-0">
+                          <i class="bi bi-calendar-event me-1"></i>日付: {{ reservation.reservation_date|date:"Y年m月d日" }}
+                        </p>
+                        <p class="card-text text-muted small mb-0">
+                          <i class="bi bi-clock me-1"></i>時間: {{ reservation.reservation_time|time:"H:i" }}
+                        </p>
+                        <p class="card-text text-muted small mb-0">
+                          <i class="bi bi-people me-1"></i>人数: {{ reservation.count }}名
+                        </p>
+                      </div>
+                      
+                      <div class="d-flex flex-column gap-2" style="min-width: 100px;">
+                        <a href="{% url 'store_detail' reservation.store.pk %}" class="btn btn-outline-primary btn-sm px-3 text-center">
+                          店舗詳細
+                        </a>
+                        <form method="POST" action="{% url 'reservation_cancel' reservation.pk %}" onsubmit="return confirm('本当にこの予約をキャンセルしますか？');" class="m-0">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-outline-danger btn-sm px-3 w-100">
+                            キャンセル
+                          </button>
+                        </form>
+                      </div>
+
+                    </div> </div> </div> {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-4 border rounded bg-light">
+              <p class="text-muted small mb-0">現在、ご予約中の店舗はありません。</p>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
 
     </div>
   </div>

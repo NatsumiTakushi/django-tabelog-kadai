@@ -6,8 +6,19 @@
     <div class="col-md-6">
       <h1 class="mb-4">Login</h1>
       
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-danger alert-dismissible fade show fw-bold text-center shadow-sm mb-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
       <form method="POST">
         {% csrf_token %}
+        
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
         
         {% if form.errors %}
           <div class="alert alert-danger">

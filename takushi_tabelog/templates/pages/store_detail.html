@@ -3,16 +3,36 @@
 {% block main %}
 <div class="container my-5">
   
-  <div class="border-bottom pb-3 mb-4">
-    <h1 class="fw-bold text-dark mb-2">{{ object.name }}</h1>
-    <div class="d-flex align-items-center gap-2">
-      <span class="badge bg-warning text-dark fs-6 px-3 py-2 shadow-sm">
-        予算: ¥{{ object.lower_price }} 〜 ¥{{ object.upper_price }}
-      </span>
-      {% if object.category %}
-        <span class="badge bg-secondary fs-6 px-3 py-2 shadow-sm">{{ object.category.name }}</span>
-      {% endif %}
+  <div class="border-bottom pb-3 mb-4 d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+      <h1 class="fw-bold text-dark mb-2">{{ object.name }}</h1>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-warning text-dark fs-6 px-3 py-2 shadow-sm">
+          予算: ¥{{ object.lower_price }} 〜 ¥{{ object.upper_price }}
+        </span>
+        {% if object.category %}
+          <span class="badge bg-secondary fs-6 px-3 py-2 shadow-sm">{{ object.category.name }}</span>
+        {% endif %}
+      </div>
     </div>
+
+    <div>
+  {% if request.user.is_authenticated and request.user.member.premium_member %}
+    <form method="POST" action="{% url 'favorite_toggle' store.pk %}">
+      {% csrf_token %} {% if is_favorite %}
+        <button type="submit" class="btn btn-danger btn-lg shadow-sm px-4">
+          <i class="bi bi-heart-fill me-2"></i>お気に入りから外す
+        </button>
+      {% else %}
+        <button type="submit" class="btn btn-outline-danger btn-lg shadow-sm px-4">
+          <i class="bi bi-heart me-2"></i>お気に入りに追加
+        </button>
+      {% endif %}
+    </form>
+  {% else %}
+    <span class="text-muted small"><i class="bi bi-heart me-1"></i>有料会員でお気に入り追加が可能</span>
+  {% endif %}
+</div>
   </div>
 
   <div class="row g-4">
@@ -31,6 +51,27 @@
           </h5>
           <p class="card-text text-muted lh-lg" style="white-space: pre-wrap;">{{ object.description|default:"紹介文はまだありません。" }}</p>
         </div>
+      </div>
+
+      <div class="bg-white p-4 rounded border shadow-sm mb-4">
+        <h5 class="fw-bold border-bottom pb-2 mb-3 text-dark">
+          <i class="bi bi-star-fill text-warning me-2"></i>カスタマーレビュー
+        </h5>
+        {% if request.user.is_authenticated and request.user.member.premium_member %}
+          <a href="{% url 'review_create' object.pk %}" class="btn btn-primary w-100 fw-bold shadow-sm py-2">
+            <i class="bi bi-pencil-square me-2"></i>レビューを投稿する
+          </a>
+        {% else %}
+          <div class="alert alert-light border text-center mb-0 py-3">
+            <p class="small text-muted mb-2">レビューの投稿には有料会員登録が必要です</p>
+            <form method="POST" action="{% url 'premium_checkout' %}">
+               {% csrf_token %}
+                <button type="submit" class="btn btn-warning fw-bold text-dark px-5 py-3 shadow-sm">
+                  ✨ 有料会員に登録する
+                </button>
+            </form>
+          </div>
+        {% endif %}
       </div>
     </div>
 
@@ -88,40 +129,52 @@
           <i class="bi bi-calendar-plus-fill text-warning me-2"></i>このお店を予約する
         </h4>
         
-        <form action="{% url 'reservation_form' object.pk %}" method="GET">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="reservation_date" class="form-label fw-bold small text-muted">ご来店日</label>
-              <input type="date" name="date" id="reservation_date" class="form-control form-control-lg" required>
-            </div>
+        {% if request.user.is_authenticated and request.user.member.premium_member %}
+          <form action="{% url 'reservation_form' object.pk %}" method="GET">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="reservation_date" class="form-label fw-bold small text-muted">ご来店日</label>
+                <input type="date" name="date" id="reservation_date" class="form-control form-control-lg" required>
+              </div>
 
-            <div class="col-md-6">
-              <label for="reservation_time" class="form-label fw-bold small text-muted">ご来店時間</label>
-              <select name="time" id="reservation_time" class="form-select form-control-lg" required>
-                <option value="" selected disabled>時間を選択してください</option>
-                <option value="12:00">12:00</option>
-                <option value="13:00">13:00</option>
-                <option value="18:00">18:00</option>
-                <option value="19:00">19:00</option>
-                <option value="20:00">20:00</option>
-              </select>
-            </div>
+              <div class="col-md-6">
+                <label for="reservation_time" class="form-label fw-bold small text-muted">ご来店時間</label>
+                <select name="time" id="reservation_time" class="form-select form-control-lg" required>
+                  <option value="" selected disabled>時間を選択してください</option>
+                  <option value="12:00">12:00</option>
+                  <option value="13:00">13:00</option>
+                  <option value="18:00">18:00</option>
+                  <option value="19:00">19:00</option>
+                  <option value="20:00">20:00</option>
+                </select>
+              </div>
 
-            <div class="col-12">
-              <label for="num_people" class="form-label fw-bold small text-muted">ご来店人数</label>
-              <div class="input-group input-group-lg">
-                <input type="number" name="people" id="num_people" class="form-control" value="2" min="1" max="20" required>
-                <span class="input-group-text bg-light text-muted">名様</span>
+              <div class="col-12">
+                <label for="num_people" class="form-label fw-bold small text-muted">ご来店人数</label>
+                <div class="input-group input-group-lg">
+                  <input type="number" name="people" id="num_people" class="form-control" value="2" min="1" max="20" required>
+                  <span class="input-group-text bg-light text-muted">名様</span>
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-warning w-100 fw-bold text-dark btn-lg shadow-sm py-3 fs-5">
+                  <i class="bi bi-check-circle-fill me-2"></i>予約内容の確認へ進む
+                </button>
               </div>
             </div>
-
-            <div class="col-12 mt-4">
-              <button type="submit" class="btn btn-warning w-100 fw-bold text-dark btn-lg shadow-sm py-3 fs-5">
-                <i class="bi bi-check-circle-fill me-2"></i>予約内容の確認へ進む
+          </form>
+        {% else %}
+          <div class="text-center py-4">
+            <p class="text-muted mb-3">ウェブからの即時予約機能は有料会員（プレミアムプラン）限定機能です。</p>
+            <form method="POST" action="{% url 'premium_checkout' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-warning fw-bold text-dark px-5 py-3 shadow-sm">
+                ✨ 有料会員に登録する
               </button>
-            </div>
+            </form>
           </div>
-        </form>
+        {% endif %}
       </div>
     </div>
   </div>

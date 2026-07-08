@@ -15,4 +15,4 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"[{self.store.name}] 評価: {self.rating} ({self.comment[:15]}...)"

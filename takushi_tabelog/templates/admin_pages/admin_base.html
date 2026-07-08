@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【運営管理】TAKUSHI TABELOG</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { min-height: 100vh; background-color: #f8f9fa; }
+    .sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; padding: 48px 0 0; box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1); width: 240px; background-color: #343a40; }
+    .sidebar .nav-link { fw-bold: 500; color: #ced4da; padding: 12px 20px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #495057; }
+    main { margin-left: 240px; padding: 40px; }
+    .navbar-brand { padding-top: .75rem; padding-bottom: .75rem; background-color: rgba(0, 0, 0, .25); box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25); }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="text-center text-white mb-4">
+      <h5 class="fw-bold"><i class="bi bi-speedometer2 me-2"></i>運営管理パネル</h5>
+      <span class="badge bg-danger">管理者専用</span>
+    </div>
+    <hr class="text-secondary">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}"><i class="bi bi-bar-chart-fill me-2"></i>売上・分析</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_store_list' or request.resolver_match.url_name == 'admin_store_create' or request.resolver_match.url_name == 'admin_store_update' or request.resolver_match.url_name == 'admin_store_delete' %}active{% endif %}" href="{% url 'admin_store_list' %}"><i class="bi bi-shop me-2"></i>店舗管理</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_member_list' %}active{% endif %}" href="{% url 'admin_member_list' %}"><i class="bi bi-people-fill me-2"></i>会員管理</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_category_list' or request.resolver_match.url_name == 'admin_category_delete' %}active{% endif %}" href="{% url 'admin_category_list' %}"><i class="bi bi-folder-fill me-2"></i>カテゴリ管理</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_tag_list' or request.resolver_match.url_name == 'admin_tag_delete' %}active{% endif %}" href="{% url 'admin_tag_list' %}"><i class="bi bi-tags-fill me-2"></i>タグ管理</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#"><i class="bi bi-gear-fill me-2"></i>基本・金額設定</a>
+      </li>
+    </ul>
+    <div class="position-absolute bottom-0 w-100 p-3">
+      <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm w-100"><i class="bi bi-box-arrow-left me-1"></i>表のサイトへ戻る</a>
+    </div>
+  </div>
+
+  <main>
+    {% block admin_main %}{% endblock %}
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

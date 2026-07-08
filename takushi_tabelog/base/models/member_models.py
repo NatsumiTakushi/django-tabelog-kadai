@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
+from django.utils import timezone
 
 # Django標準のUserモデル（username, email, password を最初から持っています）
 User = get_user_model()
@@ -25,6 +26,13 @@ class Member(models.Model):
 
     def __str__(self):
         return f"{self.user.username} の会員情報"
+
+    @property
+    def is_premium(self):
+        try:
+            return self.premium_member.premium_expiration_date > timezone.now()
+        except AttributeError:
+            return False
 
 # プレミアムユーザーもMemberに紐付ける形にスッキリ化
 class PremiumMember(models.Model):

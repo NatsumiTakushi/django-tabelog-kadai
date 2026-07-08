@@ -1,0 +1,102 @@
+{% extends 'admin_pages/admin_base.html' %}
+
+{% block admin_main %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2 fw-bold text-dark"><i class="bi bi-tags-fill me-2"></i>🏷️ タグ管理</h1>
+</div>
+
+<div class="row">
+  <!-- 新規追加フォーム -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow-sm border-0 bg-white">
+      <div class="card-header bg-dark text-white fw-bold">
+        <i class="bi bi-plus-lg me-1"></i>新規タグ追加
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{% url 'admin_tag_list' %}">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="id_slug" class="form-label fw-bold">{{ form.slug.label }}</label>
+            {{ form.slug }}
+            {% if form.slug.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.slug.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="form-text">半角英数字、ハイフン、アンダースコアが使用できます。店舗との紐付けに使用されます。</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_name" class="form-label fw-bold">{{ form.name.label }}</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.name.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
+            <i class="bi bi-check-lg me-1"></i>追加する
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- タグ一覧 -->
+  <div class="col-md-8">
+    <div class="bg-white rounded shadow-sm overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-nowrap">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col" class="ps-4">タグコード (Slug)</th>
+              <th scope="col">タグ名</th>
+              <th scope="col" class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tag in tags %}
+            <tr>
+              <td class="fw-bold text-muted ps-4">{{ tag.slug }}</td>
+              <td class="fw-bold text-dark">{{ tag.name }}</td>
+              <td class="text-center">
+                <a href="{% url 'admin_tag_delete' tag.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> 削除</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center py-5 text-muted fs-5">
+                <i class="bi bi-exclamation-circle fs-2 d-block mb-2"></i> 登録されているタグはありません。
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if is_paginated %}
+      <nav class="d-flex justify-content-center my-4">
+        <ul class="pagination pagination-sm mb-0">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">前へ</a></li>
+          {% endif %}
+          
+          <li class="page-item disabled"><span class="page-link text-dark bg-light fw-bold">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+          
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.has_next_page_number }}">次へ</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
