@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
-from base.models import Store, Category, Tag, Favorite
+from base.models import Store, Category, Tag, Favorite, Review
 from django.db.models import Q
+from django.db.models import Avg, Count
 
 class StoreListView(ListView):
     model = Store
@@ -20,6 +21,23 @@ class StoreListView(ListView):
                 Q(category__name__icontains=search_query) |
                 Q(tags__name__icontains=search_query)
             ).distinct()
+
+        order_by = self.request.GET.get("order_by")
+
+        # if order_by == "rating":
+        #     queryset = queryset.annotate(
+        #         avg_rating=Avg("reviews__rating")
+        #     ).order_by("-avg_rating", "-created_at")
+
+        # elif order_by == "favorite":
+        #     queryset = queryset.annotate(
+        #         fav_count=Count("favorited_by")
+        #     ).order_by("-fav_count", "-created_at")
+
+        # else:
+        #     # デフォルト：新着順
+        #     queryset = queryset.order_by("-created_at")
+
         return queryset
 
 class StoreDetailView(DetailView):

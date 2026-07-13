@@ -3,6 +3,10 @@ from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from base.models import Member, Reservation
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout
+from django.contrib import messages
+from django.views import View
 
 class ProfileUpdateView(UpdateView):
     model = Member
@@ -12,7 +16,7 @@ class ProfileUpdateView(UpdateView):
     success_url = "/profile/"
 
     def get_object(self, queryset=None):
-        # 💡 ログイン中なら自分のMemberを返す。未ログインなら空の仮インスタンスを渡してエラーを防ぐ
+        # ログイン中なら自分のMemberを返す。未ログインなら空の仮インスタンスを渡してエラーを防ぐ
         if self.request.user.is_authenticated:
             member, created = Member.objects.get_or_create(user=self.request.user)
             return member
@@ -66,3 +70,17 @@ class ProfileUpdateView(UpdateView):
             
             # 2. Member情報の保存（UpdateView本来の動き）
             return super().form_valid(form)
+
+# 一般会員の退会（アカウント完全削除）
+class DeleteAccountView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        
+        # アカウント削除（紐づくMemberデータも CASCADE で自動削除されます）
+        user.delete()
+        
+        # セッションをクリアしてログアウト状態にする
+        logout(request)
+        
+        messages.success(request, "退会手続きが完了しました。ご利用ありがとうございました。")
+        return redirect('home')

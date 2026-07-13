@@ -1,38 +1,22 @@
-<div class="container w-100 bg-dark text-white py-4" style="max-width: 100%;">
-  <div class="row mt-5 mx-5">
-    <div class="col-12 col-md">
-      <h5>TAKUSHI TABELOG</h5>
-      <small class="d-block mb-3 text-muted">&copy; 2017-2021</small>
+<footer class="container w-100 bg-dark text-white py-4" style="max-width: 100%;">
+  <div class="row mt-4 mx-5">
+
+    <!-- 左側：サイトロゴとコピーライト -->
+    <div class="col-12 col-md-4 mb-4 mb-md-0">
+      <h5 class="text-uppercase fw-bold">NAGOYAMESHI</h5>
+      <!-- コピーライトの西暦を現在に合わせて更新 -->
+      <small class="d-block text-muted">&copy; 2024-2026 NAGOYAMESHI All rights reserved.</small>
     </div>
-    <div class="col-6 col-md">
-      <h5>特徴</h5>
-      <ul class="list-unstyled text-small ">
-        <li><a class="link-secondary text-muted" href="/">Top</a></li>
-      </ul>
-    </div>
-    <div class="col-6 col-md">
-      <h5>リソース</h5>
+
+    <!-- 規約・企業情報 -->
+    <div class="col-6 col-md-3 mb-3">
+      <h6 class="fw-bold">サイトについて</h6>
       <ul class="list-unstyled text-small">
-        <li><a class="link-secondary text-muted" href="#">リンク</a></li>
-        <li><a class="link-secondary text-muted" href="#">リンク</a></li>
-        <li><a class="link-secondary text-muted" href="#">リンク</a></li>
+        <li><a class="link-light text-muted text-decoration-none" href="{% url 'company' %}">会社概要</a></li>
+        <li><a class="link-light text-muted text-decoration-none" href="{% url 'terms' %}">利用規約</a></li>
+        <li><a class="link-light text-muted text-decoration-none" href="{% url 'privacy' %}">プライバシーポリシー</a></li>
       </ul>
     </div>
-    <div class="col-6 col-md">
-      <h5>リソース</h5>
-      <ul class="list-unstyled text-small">
-        <li><a class="link-secondary text-muted" href="#">リンク</a></li>
-        <li><a class="link-secondary text-muted" href="#">リンク</a></li>
-        <li><a class="link-secondary text-muted" href="#">リンク</a></li>
-      </ul>
-    </div>
-    <div class="col-6 col-md">
-      <h5>サイトについて</h5>
-      <ul class="list-unstyled text-small">
-        <li><a class="link-secondary text-muted" href="#">Company</a></li>
-        <li><a class="link-secondary text-muted" href="#">Privacy</a></li>
-        <li><a class="link-secondary text-muted" href="#">Terms</a></li>
-      </ul>
-    </div>
+
   </div>
-</div>
+</footer>
