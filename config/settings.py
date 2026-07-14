@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import environ
-
+import dj_database_url
 import os
 from dotenv import load_dotenv
 
@@ -91,6 +91,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.environ.get('DB_DATABASE'),
+#         'USER': os.environ.get('DB_USERNAME'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST'),
+#         'PORT': os.environ.get('DB_PORT', '3306'),
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -102,7 +113,12 @@ DATABASES = {
     }
 }
 
-
+# Heroku（JawsDB）用の設定：JAWSDB_MARIA_URL が存在する場合は、設定を上書きする
+if os.environ.get('JAWSDB_MARIA_URL'):
+    DATABASES['default'] = dj_database_url.config(
+        env='JAWSDB_MARIA_URL',
+        engine='django.db.backends.mysql'
+    )
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
