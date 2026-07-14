@@ -134,7 +134,7 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label for="reservation_date" class="form-label fw-bold small text-muted">ご来店日</label>
-                <input type="date" name="date" id="reservation_date" class="form-control form-control-lg" required>
+                <input type="text" name="date" id="reservation_date" class="form-control form-control-lg bg-white" placeholder="日付を選択してください" required>
               </div>
 
               <div class="col-md-6">
@@ -180,4 +180,31 @@
   </div>
 
 </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const storeHoliday = "{{ object.holiday|escapejs }}".trim();
+    
+    const holidayMap = { "日曜日": 0, "月曜日": 1, "火曜日": 2, "水曜日": 3, "木曜日": 4, "金曜日": 5, "土曜日": 6 };
+    const disableDayIndex = holidayMap[storeHoliday];
+
+    flatpickr("#reservation_date", {
+        locale: "ja",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        disable: [
+            function(date) {
+                if (disableDayIndex !== undefined) {
+                    return (date.getDay() === disableDayIndex);
+                }
+                return false;
+            }
+        ]
+    });
+});
+</script>
 {% endblock %}
