@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath takushi_tabelog config.wsgi
+web: gunicorn --pythonpath config.wsgi --log-file -
