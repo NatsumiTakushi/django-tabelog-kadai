@@ -141,11 +141,6 @@
                 <label for="reservation_time" class="form-label fw-bold small text-muted">ご来店時間</label>
                 <select name="time" id="reservation_time" class="form-select form-control-lg" required>
                   <option value="" selected disabled>時間を選択してください</option>
-                  <option value="12:00">12:00</option>
-                  <option value="13:00">13:00</option>
-                  <option value="18:00">18:00</option>
-                  <option value="19:00">19:00</option>
-                  <option value="20:00">20:00</option>
                 </select>
               </div>
 
@@ -188,7 +183,9 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const storeHoliday = "{{ object.holiday|escapejs }}".trim();
+    const storeOpenHours = "{{ object.open_hours|escapejs }}".trim();
     
+    // 1. カレンダー定休日制御 (flatpickr)
     const holidayMap = { "日曜日": 0, "月曜日": 1, "火曜日": 2, "水曜日": 3, "木曜日": 4, "金曜日": 5, "土曜日": 6 };
     const disableDayIndex = holidayMap[storeHoliday];
 
@@ -205,6 +202,64 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         ]
     });
+
+    // 2. 営業時間に基づくセレクトボックスの動的生成
+    const timeSelect = document.getElementById("reservation_time");
+    
+    if (storeOpenHours) {
+        // 区切り文字の表記ブレを統一して空白を除去
+        const normalizedHours = storeOpenHours.replace('-', '~').replace('〜', '~').replace(/\s+/g, '');
+        
+        if (normalizedHours.includes('~')) {
+            const [startStr, endStr] = normalizedHours.split('~');
+            
+            // "HH:MM" から「分換算の数値」に変換するヘルパー
+            const parseToMinutes = (tStr) => {
+                const parts = tStr.split(':');
+                return parseInt(parts[0], 10) * 60 + (parts[1] ? parseInt(parts[1], 10) : 0);
+            };
+
+            // 「分換算の数値」から "HH:MM" のフォーマットに戻すヘルパー
+            const formatTime = (totalMin) => {
+                const h = Math.floor(totalMin / 60).toString().padStart(2, '0');
+                const m = (totalMin % 60).toString().padStart(2, '0');
+                return `${h}:${m}`;
+            };
+
+            try {
+                const startMin = parseToMinutes(startStr);
+                const endMin = parseToMinutes(endStr);
+                
+                // 30分刻みで選択肢をループ生成
+                for (let currentMin = startMin; currentMin <= endMin; currentMin += 30) {
+                    const timeValue = formatTime(currentMin);
+                    
+                    const option = document.createElement("option");
+                    option.value = timeValue;
+                    option.textContent = timeValue;
+                    timeSelect.appendChild(option);
+                }
+            } catch (e) {
+                console.error("営業時間セレクトボックス生成エラー:", e);
+                fallbackOptions(); // エラー時は一応予備の選択肢を出す
+            }
+        } else {
+            fallbackOptions();
+        }
+    } else {
+        fallbackOptions();
+    }
+
+    // 万が一お店の営業時間のパースに失敗したときのバックアップ選択肢
+    function fallbackOptions() {
+        const defaultTimes = ["12:00", "13:00", "18:00", "19:00", "20:00"];
+        defaultTimes.forEach(t => {
+            const option = document.createElement("option");
+            option.value = t;
+            option.textContent = t;
+            timeSelect.appendChild(option);
+        });
+    }
 });
 </script>
 {% endblock %}
