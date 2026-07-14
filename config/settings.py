@@ -22,13 +22,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 root = environ.Path(BASE_DIR / 'secrets')
 
-env.read_env(root('.env.dev'))  # Load the .env.dev file
+# env.read_env(root('.env.dev'))  # Load the .env.dev file
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# # Quick-start development settings - unsuitable for production
+# # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = env.str('SECRET_KEY')
+
+# .env.dev ファイルが存在する場合のみ読み込むように変更（Herokuでのエラーを防ぐ）
+env_file = root('.env.dev')
+if os.path.exists(env_file):
+    env.read_env(env_file)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str('SECRET_KEY')
+# Herokuに登録した環境変数、または.env.devからSECRET_KEYを読み込みます
+SECRET_KEY = env.str('SECRET_KEY', default=os.environ.get('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
