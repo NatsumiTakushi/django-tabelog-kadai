@@ -32,7 +32,6 @@ class ReservationCreateView(CreateView):
         time_str = self.request.POST.get('time') or self.request.GET.get('time')
         people_str = self.request.POST.get('people') or self.request.GET.get('people')
         
-        # モデルにデータをセット
         if date_str:
             reservation.reservation_date = parse_date(date_str)
         if time_str:
@@ -40,17 +39,15 @@ class ReservationCreateView(CreateView):
         if people_str:
             reservation.count = int(people_str)
             
-        # ユーザー情報の紐付け
         if self.request.user.is_authenticated:
             reservation.member = self.request.user.member
             
-        # 店舗情報の紐付け
         pk = self.kwargs.get('pk')
         store = get_object_or_404(Store, pk=pk)
         reservation.store = store
 
         # ==========================================================
-        # 🚨 【追加】営業時間・定休日のバリデーションチェック
+        # 🚨 【修正版】営業時間・定休日のバリデーションチェック
         # ==========================================================
         
         # ① 過去の日付チェック
@@ -58,15 +55,26 @@ class ReservationCreateView(CreateView):
             messages.error(self.request, "過去の日付は予約できません。")
             return self.form_invalid_custom(form, store, date_str, time_str, people_str)
 
-        # ② 定休日チェック
+        # ② 定休日チェック（タイムゾーンのズレを防ぐ確実な方法）
         if reservation.reservation_date and store.holiday:
-            weekday_map = {"月曜日": 0, "火曜日": 1, "水曜日": 2, "木曜日": 3, "金曜日": 4, "土曜日": 5, "日曜日": 6}
-            if store.holiday in weekday_map:
-                if reservation.reservation_date.weekday() == weekday_map[store.holiday]:
-                    messages.error(self.request, f"申し訳ありません。選択された日は{store.holiday}（定休日）です。")
-                    return self.form_invalid_custom(form, store, date_str, time_str, people_str)
+            # 予約日の曜日を「月曜日」「火曜日」といった文字列に変換
+            # %A はロケール（環境）に応じて曜日名（日本語なら◯曜日）を返します
+            import locale
+            try:
+                locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
+            except Exception:
+                pass # 本番環境のOSによって設定できない場合はスキップ
+                
+            # 確実な曜日マッピング（0=月, 1=火 ... 6=日）
+            weekdays = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"]
+            res_weekday_name = weekdays[reservation.reservation_date.weekday()]
+            
+            # 店舗の定休日（例: "火曜日"）と、選択された日（例: "火曜日"）を直接比較
+            if store.holiday.strip() == res_weekday_name:
+                messages.error(self.request, f"申し訳ありません。選択された日は{store.holiday}（定休日）です。")
+                return self.form_invalid_custom(form, store, date_str, time_str, people_str)
 
-        # ③ 営業時間チェック (open_hours が "11:00~21:00" のように「~」で区切られている前提)
+        # ③ 営業時間チェック
         if reservation.reservation_time and store.open_hours and '~' in store.open_hours:
             try:
                 start_str, end_str = store.open_hours.split('~')
@@ -77,11 +85,11 @@ class ReservationCreateView(CreateView):
                     messages.error(self.request, f"予約時間は営業時間内（{store.open_hours}）で指定してください。")
                     return self.form_invalid_custom(form, store, date_str, time_str, people_str)
             except ValueError:
-                pass # パースに失敗した場合は安全のためスルーします
+                pass
 
         # ==========================================================
 
-        # Djangoのバリデーションチェックを強制通過させる処理
+        # すべてのチェックを通過した場合のみ、以下が実行されて保存されます
         form.instance.reservation_date = reservation.reservation_date
         form.instance.reservation_time = reservation.reservation_time
         form.instance.count = reservation.count
