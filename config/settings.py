@@ -129,9 +129,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+
+# 本番環境（Heroku）で静的ファイルを集約するフォルダ（staticfiles という名前にします）
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 開発中に使う、オリジナルの静的ファイル（CSSや画像）を置くフォルダ
 STATICFILES_DIRS = [
-    BASE_DIR / 'static']
+    BASE_DIR / 'static',
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
