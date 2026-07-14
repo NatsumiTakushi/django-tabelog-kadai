@@ -35,12 +35,12 @@
               <div class="mb-3">
                 <label class="form-label fw-bold text-dark">店舗画像</label>
                 {{ form.image.errors }}
-                {% if object.image %}
+                <!-- {% if object.image %}
                   <div class="mb-2">
                     <small class="text-muted d-block">現在の画像:</small>
                     <img src="{{ object.image.name }}" class="img-thumbnail" style="max-height: 120px;">
                   </div>
-                {% endif %}
+                {% endif %} -->
                 <input type="file" name="image" class="form-control">
               </div>
 
