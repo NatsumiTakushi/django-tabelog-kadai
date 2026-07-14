@@ -39,7 +39,7 @@
                 {% if object.image %}
                   <div class="mb-2">
                     <small class="text-muted d-block">現在の画像:</small>
-                    <img src="{% static 'stores/' %}{{ object.image.name }}" class="img-thumbnail" style="max-height: 120px;">
+                    <img src="/static/stores/{{ object.image.name }}" class="img-thumbnail" style="max-height: 120px;">
                   </div>
                 {% endif %}
                 <input type="file" name="image" class="form-control">
