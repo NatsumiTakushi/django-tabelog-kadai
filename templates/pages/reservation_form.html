@@ -7,6 +7,17 @@
       <div class="card shadow-sm p-4 text-center">
         <h2 class="fw-bold mb-4 text-primary">予約内容のご確認</h2>
         
+        {% if messages %}
+          <div class="messages mb-4">
+            {% for message in messages %}
+              <div class="alert alert-danger text-start shadow-sm d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0"></i>
+                <div>{{ message }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        
         <table class="table table-bordered my-4 align-middle text-start">
           <tbody>
             <tr>
