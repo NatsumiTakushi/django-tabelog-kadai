@@ -39,7 +39,7 @@
     <div class="col-md-5">
       <div class="card shadow-sm border-0 mb-4">
         {% if object.image %}
-          <img src="{% static 'stores/'|add:object.image.name %}" class="img-fluid rounded-top w-100" style="max-height: 400px; object-fit: cover;" alt="{{ object.name }}">
+          <img src="{%'stores/'|add:object.image.name %}" class="img-fluid rounded-top w-100" style="max-height: 400px; object-fit: cover;" alt="{{ object.name }}">
         {% else %}
           <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded-top" style="height: 300px;">
             <i class="bi bi-image fs-1 me-2"></i> No Image
