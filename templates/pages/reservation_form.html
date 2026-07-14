@@ -7,13 +7,6 @@
       <div class="card shadow-sm p-4 text-center">
         <h2 class="fw-bold mb-4 text-primary">予約内容のご確認</h2>
         
-        <div id="alert-container" class="messages mb-4" style="display: none;">
-          <div class="alert alert-danger text-start shadow-sm d-flex align-items-center" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0"></i>
-            <div id="error-message"></div>
-          </div>
-        </div>
-
         {% if messages %}
           <div class="messages mb-4">
             {% for message in messages %}
@@ -46,14 +39,14 @@
           </tbody>
         </table>
         
-        <form method="POST" id="reservation-form">
+        <form method="POST">
           {% csrf_token %}
           
           <input type="hidden" name="date" value="{{ selected_date }}">
           <input type="hidden" name="time" value="{{ selected_time }}">
           <input type="hidden" name="people" value="{{ selected_people }}">
           
-          <button type="submit" id="submit-btn" class="btn btn-warning btn-lg w-100 fw-bold text-dark shadow-sm py-3">
+          <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold text-dark shadow-sm py-3">
             <i class="bi bi-check-circle-fill me-2"></i>この内容で予約を確定する
           </button>
         </form>
@@ -67,50 +60,4 @@
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Djangoから渡される店舗情報と選択情報（文字列）
-    const storeHoliday = "{{ store.holiday|escapejs }}".trim();
-    const storeOpenHours = "{{ store.open_hours|escapejs }}".trim();
-    
-    const selectedDateStr = "{{ selected_date|escapejs }}"; // 例: "2026-07-14"
-    const selectedTimeStr = "{{ selected_time|escapejs }}"; // 例: "18:00"
-
-    const alertContainer = document.getElementById("alert-container");
-    const errorMessage = document.getElementById("error-message");
-    const submitBtn = document.getElementById("submit-btn");
-
-    if (!selectedDateStr || !selectedTimeStr) return;
-
-    // 1. 定休日チェック
-    const weekdays = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
-    const dateObj = new Date(selectedDateStr);
-    const selectedWeekdayName = weekdays[dateObj.getDay()]; // 選択された日の曜日名を取得
-
-    if (storeHoliday && storeHoliday === selectedWeekdayName) {
-        showError(`申し訳ありません。選択された日は ${storeHoliday}（定休日）のため、予約できません。`);
-        return;
-    }
-
-    // 2. 営業時間チェック
-    if (storeOpenHours) {
-        // ハイフンや波線を一律で「~」に変換して、前後の空白を除去
-        const normalizedHours = storeOpenHours.replace('-', '~').replace('〜', '~').replace(/\s+/g, '');
-        
-        if (normalizedHours.includes('~')) {
-            const [startStr, endStr] = normalizedHours.split('~');
-            
-            // 時間を比較用の数値（分換算）に変換する関数 (例 "11:30" -> 690)
-            const toMinutes = (timeStr) => {
-                const [h, m] = timeStr.trim().split(':');
-                return parseInt(h, 10) * 60 + parseInt(m, 10);
-            };
-
-            try {
-                const startTime = toMinutes(startStr);
-                const endTime = toMinutes(endStr);
-                const selectedTime = toMinutes(selectedTimeStr);
-
-                if (selectedTime < startTime || selectedTime > endTime) {
-                    showError(`予約時間は営業時間内（${storeOpenHours}）で指定
+{% endblock %}
