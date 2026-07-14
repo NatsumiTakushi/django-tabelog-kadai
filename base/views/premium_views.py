@@ -3,7 +3,7 @@ import json
 import stripe
 
 from django.conf import settings
-from django.contrib import messages  # 漏れていたメッセージ機能をインポート
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -24,7 +24,7 @@ class CreateCheckoutSessionView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         # 開発環境のドメイン（本番環境ではドメインを変更してください）
-        domain_url = "http://127.0.0.1:8000"
+        domain_url = f"{request.scheme}://{request.get_host()}"
 
         try:
             checkout_session = stripe.checkout.Session.create(
