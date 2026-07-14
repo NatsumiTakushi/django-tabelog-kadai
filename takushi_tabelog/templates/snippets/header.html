@@ -1,11 +1,11 @@
-<div class="py-1 bg-dark">
-  <nav class="container d-flex flex-column flex-md-row justify-content-between">
-    <a class="py-2 text-white" href="/">TAKUSHI TABELOG</a>
+<div class="py-3 bg-dark">
+  <nav class="container d-flex flex-column flex-md-row justify-content-between px-3 px-md-5">
+    <a class="py-2 text-white fw-bold text-decoration-none" href="/">NAGOYAMESHI</a>
 
-    <div class="d-flex flex-column flex-md-row gap-3 align-items-center">
+    <div class="d-flex flex-column flex-md-row align-items-center" style="gap: 2.5rem;">
       {% if user.is_authenticated %}
         <span class="py-2 d-none d-md-inline-block text-white">ようこそ、{{ user.username }} さん</span>
-        <a class="py-2 d-none d-md-inline-block text-white" href="/profile/">アカウント設定</a>
+        <a class="py-2 d-none d-md-inline-block text-white text-decoration-none" href="/profile/">アカウント設定</a>
         
         <form action="/logout/" method="post" class="d-inline m-0 p-0">
           {% csrf_token %}
@@ -15,8 +15,8 @@
         </form>
 
       {% else %}
-        <a class="py-2 d-none d-md-inline-block text-white" href="/login/">ログイン</a>
-        <a class="py-2 d-none d-md-inline-block text-white" href="/profile/">新規登録</a>
+        <a class="py-2 d-none d-md-inline-block text-white text-decoration-none" href="/login/">ログイン</a>
+        <a class="py-2 d-none d-md-inline-block text-white text-decoration-none" href="/profile/">新規登録</a>
       {% endif %}
     </div>
   </nav>
