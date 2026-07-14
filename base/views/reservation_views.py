@@ -74,18 +74,27 @@ class ReservationCreateView(CreateView):
                 messages.error(self.request, f"申し訳ありません。選択された日は{store.holiday}（定休日）です。")
                 return self.form_invalid_custom(form, store, date_str, time_str, people_str)
 
-        # ③ 営業時間チェック
-        if reservation.reservation_time and store.open_hours and '~' in store.open_hours:
+        # ③ 営業時間チェック (どんな区切り文字でも対応できるように改良)
+        if reservation.reservation_time and store.open_hours:
             try:
-                start_str, end_str = store.open_hours.split('~')
-                start_time = datetime.strptime(start_str.strip(), '%H:%M').time()
-                end_time = datetime.strptime(end_str.strip(), '%H:%M').time()
+                # 区切り文字（~ や - や 〜）をすべて「~」に統一する
+                normalized_hours = store.open_hours.replace('-', '~').replace('〜', '~').replace(' ', '')
                 
-                if not (start_time <= reservation.reservation_time <= end_time):
-                    messages.error(self.request, f"予約時間は営業時間内（{store.open_hours}）で指定してください。")
-                    return self.form_invalid_custom(form, store, date_str, time_str, people_str)
-            except ValueError:
-                pass
+                if '~' in normalized_hours:
+                    # 文字列を「開始」と「終了」に分解
+                    start_str, end_str = normalized_hours.split('~')
+                    
+                    # 💡 もし "11:00:00" のように秒まで含まれている場合にも対応
+                    start_time = datetime.strptime(start_str.strip()[:5], '%H:%M').time()
+                    end_time = datetime.strptime(end_str.strip()[:5], '%H:%M').time()
+                    
+                    # 予約時間が営業時間内に収まっているか判定
+                    if not (start_time <= reservation.reservation_time <= end_time):
+                        messages.error(self.request, f"予約時間は営業時間内（{store.open_hours}）で指定してください。")
+                        return self.form_invalid_custom(form, store, date_str, time_str, people_str)
+            except Exception as e:
+                # 万が一エラーが起きても強制スルーせず、ログに出力して確認できるようにする
+                print(f"❌ 営業時間パースエラー: {e}")
 
         # ==========================================================
 
